@@ -1,4 +1,4 @@
-module cprotect
+module github.com/lgirma/cprotect
 
 go 1.17
 

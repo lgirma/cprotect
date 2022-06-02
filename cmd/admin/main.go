@@ -1,8 +1,8 @@
 package main
 
 import (
-	"cprotect"
 	"fmt"
+	"github.com/lgirma/cprotect"
 	"golang.org/x/term"
 	"os"
 )

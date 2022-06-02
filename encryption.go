@@ -6,20 +6,28 @@ import (
 	"encoding/base64"
 )
 
-var bytes = []byte{35, 12, 57, 24, 44, 34, 24, 74, 96, 35, 88, 85, 18, 96, 14, 05}
-
 func Encode(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
-// Encrypt method is to encrypt or hide any classified text
+func reverseString(s string) string {
+	runes := []rune(s)
+	size := len(runes)
+	for i := 0; i < size/2; i++ {
+		runes[size-i-1], runes[i] = runes[i],  runes[size-i-1]
+	}
+	return string(runes)
+}
+
+
 func Encrypt(text, password string) (string, error) {
+	iv := []byte(reverseString(password))
 	block, err := aes.NewCipher([]byte(password))
 	if err != nil {
 		return "", err
 	}
 	plainText := []byte(text)
-	cfb := cipher.NewCFBEncrypter(block, bytes)
+	cfb := cipher.NewCFBEncrypter(block, iv)
 	cipherText := make([]byte, len(plainText))
 	cfb.XORKeyStream(cipherText, plainText)
 	return Encode(cipherText), nil
@@ -34,12 +42,13 @@ func decode(s string) []byte {
 }
 
 func Decrypt(text, password string) (string, error) {
+	iv := []byte(reverseString(password))
 	block, err := aes.NewCipher([]byte(password))
 	if err != nil {
 		return "", err
 	}
 	cipherText := decode(text)
-	cfb := cipher.NewCFBDecrypter(block, bytes)
+	cfb := cipher.NewCFBDecrypter(block, iv)
 	plainText := make([]byte, len(cipherText))
 	cfb.XORKeyStream(plainText, cipherText)
 	return string(plainText), nil

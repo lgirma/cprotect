@@ -1,9 +1,9 @@
 package main
 
 import (
-	"cprotect"
 	"encoding/hex"
 	"fmt"
+	"github.com/lgirma/cprotect"
 )
 
 var Product string
