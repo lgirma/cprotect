@@ -12,6 +12,8 @@ Although software copy protection is an error-prone task to implement, this util
 * Product - is the name of the software.
 * Password - is a secure password held by the activator. Its length should be 16, 24, etc.
 
+![diagram](res/diagram.png "Diagram")
+
 ## API
 
 To get the request code:
