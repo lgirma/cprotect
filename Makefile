@@ -3,3 +3,7 @@ build-admin:
 
 build-activator:
 	cd cmd/activator; go build -ldflags "-s -w -X main.Product=Geezr-Go -X 'main.Password=$(CProtectPass)'" -o ../../bin/cprotect-activator.exe
+
+release:
+	git tag v0.2.0
+	git push origin HEAD

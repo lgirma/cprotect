@@ -1,7 +1,8 @@
+//+build windows
+
 package cprotect
 
 import (
-	"encoding/hex"
 	"errors"
 	"os/exec"
 	"strings"
@@ -41,10 +42,7 @@ func getBaseBoardSerialNumber() (string, error) {
 	return strings.TrimSpace(sn[1]), nil
 }
 
-func GetRequestCode(productCode string) (string, error) {
-	if len(productCode) == 0 {
-		return "", errors.New(ErrorProductIdEmpty)
-	}
+func GetMachineId() (string, error) {
 	errs := make([]error, 0)
 	hddId, err := getHDDSerialNumber()
 	if err != nil {
@@ -63,6 +61,5 @@ func GetRequestCode(productCode string) (string, error) {
 		return "", errors.New(ErrorHardwareIdEmpty)
 	}
 
-	id := strings.ToUpper(hardwareId + "/" + productCode)
-	return hex.EncodeToString([]byte(id)), nil
+	return hardwareId, nil
 }

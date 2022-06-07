@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/lgirma/cprotect"
 	"golang.org/x/term"
+	"log"
 	"os"
 )
 
@@ -42,11 +43,11 @@ func main() {
 
 	enc, err := cprotect.Encrypt(reqCode, password)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	dec, err := cprotect.Decrypt(enc, password)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	fmt.Printf("Request Code: %s\n", reqCode)
 	fmt.Printf("Encryped: %s\n", enc)

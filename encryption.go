@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"log"
 )
 
 func Encode(b []byte) string {
@@ -36,7 +37,7 @@ func Encrypt(text, password string) (string, error) {
 func decode(s string) []byte {
 	data, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return data
 }
