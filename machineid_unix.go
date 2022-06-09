@@ -1,4 +1,4 @@
-//+build !windows || web
+//+build !windows
 
 package cprotect
 

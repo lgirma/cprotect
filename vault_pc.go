@@ -1,4 +1,4 @@
-//+build !web
+//+build (linux || darwin || windows || freebsd)
 
 package cprotect
 

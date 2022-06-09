@@ -1,4 +1,4 @@
-//+build !(linux || mac || windows)
+//+build !(linux, darwin, windows, freebsd)
 
 package cprotect
 
