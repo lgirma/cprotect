@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
+
 	"github.com/lgirma/cprotect"
 )
 
@@ -29,17 +29,21 @@ func pressAnyKeyToExit() {
 func main() {
 	reqCodeThisPC := ""
 	activationCode := ""
-	passwordBytes, _ := hex.DecodeString(Password)
+	//passwordBytes, _ := hex.DecodeString(Password)
+	passwordBytes := []byte(Password)
 	password := string(passwordBytes[:])
+	fingerprintService := cprotect.GetFingerprintService()
+	vaultService := cprotect.GetVaultService()
+	forAllUsers := false
 
-	fmt.Println("CProtect Activator 1.0")
+	fmt.Println("CProtect Activator 2.0")
 	if len(Product) > 0 {
 		fmt.Println("Product: " + Product)
 	} else {
 		fmt.Print("Enter Product: ")
 		fmt.Scan(&Product)
 	}
-	reqCodeThisPC, err := cprotect.GetRequestCode(Product)
+	reqCodeThisPC, err := cprotect.GetRequestCode(Product, fingerprintService)
 	if err != nil {
 		showError("Failed to get request code\n")
 		pressAnyKeyToExit()
@@ -47,7 +51,8 @@ func main() {
 	} else {
 		fmt.Println("Req Code (this PC): " + reqCodeThisPC)
 	}
-	isInstalled, err := cprotect.IsInstalled(Product, password)
+	isInstalled, err := cprotect.IsInstalled(Product, password, forAllUsers,
+		fingerprintService, vaultService)
 	if err != nil {
 		showError("Failed to check installation: " + err.Error() + "\n")
 	} else if isInstalled {
@@ -62,11 +67,11 @@ func main() {
 			pressAnyKeyToExit()
 			return
 		}
-		err = cprotect.Install(Product, activationCode)
+		err = cprotect.Install(Product, activationCode, forAllUsers, vaultService)
 		if err != nil {
 			showError("Installation failure: " + err.Error() + "\n")
 		} else {
-			showSuccess("Successfully installed in vault.")
+			showSuccess("Successfully installed in vault.\n")
 		}
 	} else {
 		fmt.Println("Skipped installation")

@@ -3,21 +3,36 @@ package cprotect
 import (
 	"errors"
 	"os"
-	"path"
+	"path/filepath"
 )
 
-func getVaultFilePaths(product string) []string {
+type VaultService interface {
+	ReadVault(product string, forAllUsers bool) (string, error)
+	WriteToVault(product string, content string, forAllUsers bool) error
+}
+
+func GetVaultService() VaultService {
+	return &PCVaultService{}
+}
+
+type PCVaultService struct {
+
+}
+
+const vault_file_name = "vault.key"
+
+func (service *PCVaultService) GetVaultFilePaths(product string, forAllUsers bool) []string {
 	result := make([]string, 0)
 	configDir, err := os.UserConfigDir()
 	if err == nil {
-		result = append(result, path.Join(configDir, product, "vault.key"))
+		result = append(result, filepath.Join(configDir, product, vault_file_name))
 	}
 
 	return result
 }
 
-func readVaultFile(product string) (string, error) {
-	paths := getVaultFilePaths(product)
+func (service *PCVaultService) ReadVault(product string, forAllUsers bool) (string, error) {
+	paths := service.GetVaultFilePaths(product, forAllUsers)
 	vaultFilePath := ""
 	for _, filePath := range paths {
 		_, err := os.Stat(filePath)
@@ -36,34 +51,13 @@ func readVaultFile(product string) (string, error) {
 	return string(content), nil
 }
 
-func IsInstalled(product string, password string) (bool, error) {
-	reqCode, err := GetRequestCode(product)
-	if err != nil {
-		return false, err
-	}
-	vaultContent, err := readVaultFile(product)
-	if len(vaultContent) == 0 {
-		return false, err
-	}
-	dec, err := Decrypt(vaultContent, password)
-	if err != nil {
-		return false, errors.New(ErrorDecryptionFailure)
-	}
-	return dec == reqCode, nil
-}
-
-func IsActivationCodeValid(password string, requestCode string, activationCode string) bool {
-	dec, _ := Decrypt(activationCode, password)
-	return dec == requestCode
-}
-
-func Install(product string, activationCode string) error {
-	vaultFiles := getVaultFilePaths(product)
+func (service *PCVaultService) WriteToVault(product string, content string, forAllUsers bool) error {
+	vaultFiles := service.GetVaultFilePaths(product, true)
 	if len(vaultFiles) == 0 {
 		return errors.New(ErrorSuitableVaultDirNotFound)
 	}
 	vaultFile := vaultFiles[0]
-	dir := path.Dir(vaultFile)
+	dir := filepath.Dir(vaultFile)
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
 		return errors.New(ErrorSuitableVaultDirNotFound)
@@ -72,7 +66,7 @@ func Install(product string, activationCode string) error {
 	if err != nil {
 		return errors.New(ErrorVaultFileWriteFailure)
 	}
-	_, err = f.WriteString(activationCode)
+	_, err = f.WriteString(content)
 	if err != nil {
 		return errors.New(ErrorVaultFileWriteFailure)
 	}

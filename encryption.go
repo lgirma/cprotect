@@ -5,7 +5,17 @@ import (
 	"crypto/cipher"
 	"encoding/base64"
 	"log"
+	"math"
 )
+
+const password_fill = "52624fb7e18e45a"
+
+func normalize_password(password string) string {
+	plen := len(password)
+	factor := int(math.Ceil(float64(plen) / 16))
+	remaining := int(math.Abs(float64(plen - 16*factor)))
+	return password + password_fill[:remaining]
+}
 
 func Encode(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)
@@ -15,13 +25,13 @@ func reverseString(s string) string {
 	runes := []rune(s)
 	size := len(runes)
 	for i := 0; i < size/2; i++ {
-		runes[size-i-1], runes[i] = runes[i],  runes[size-i-1]
+		runes[size-i-1], runes[i] = runes[i], runes[size-i-1]
 	}
 	return string(runes)
 }
 
-
-func Encrypt(text, password string) (string, error) {
+func Encrypt(text, password_input string) (string, error) {
+	password := normalize_password(password_input)
 	iv := []byte(reverseString(password))
 	block, err := aes.NewCipher([]byte(password))
 	if err != nil {
@@ -42,7 +52,8 @@ func decode(s string) []byte {
 	return data
 }
 
-func Decrypt(text, password string) (string, error) {
+func Decrypt(text, password_input string) (string, error) {
+	password := normalize_password(password_input)
 	iv := []byte(reverseString(password))
 	block, err := aes.NewCipher([]byte(password))
 	if err != nil {

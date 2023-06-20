@@ -6,11 +6,12 @@ import (
 	"strings"
 )
 
-func GetRequestCode(productCode string) (string, error) {
+func GetRequestCode(productCode string, fingerprintService FingerprintService) (string, error) {
+	elevatedPrivilege := isCurrentUserRoot()
 	if len(productCode) == 0 {
 		return "", errors.New(ErrorProductIdEmpty)
 	}
-	hardwareId, err := GetMachineId()
+	hardwareId, err := fingerprintService.GetMachineId(elevatedPrivilege)
 	if err != nil {
 		return "", err
 	}

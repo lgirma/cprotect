@@ -24,7 +24,7 @@ func queryWMIC(args ...string) (string, error) {
 	return string(cmdOutput), nil
 }
 
-func getHDDSerialNumber() (string, error) {
+func getDiskDriveId(elevatedPrivilege bool) (string, error) {
 	output, err := queryWMIC("diskdrive", "get", "serialnumber") //exec.Command("wmic", "diskdrive", "get", "serialnumber")
 	if err != nil {
 		return "", err
@@ -33,33 +33,11 @@ func getHDDSerialNumber() (string, error) {
 	return strings.TrimSpace(sn[1]), nil
 }
 
-func getBaseBoardSerialNumber() (string, error) {
+func getMotherboardId(elevatedPrivilege bool) (string, error) {
 	output, err := queryWMIC("baseboard", "get", "serialnumber") //exec.Command("wmic", "diskdrive", "get", "serialnumber")
 	if err != nil {
 		return "", err
 	}
 	sn := strings.Split(strings.TrimSuffix(output, "\n"), "\n")
 	return strings.TrimSpace(sn[1]), nil
-}
-
-func GetMachineId() (string, error) {
-	errs := make([]error, 0)
-	hddId, err := getHDDSerialNumber()
-	if err != nil {
-		errs = append(errs, err)
-	}
-	mbId, err := getBaseBoardSerialNumber()
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	hardwareId := hddId + mbId
-	if len(hardwareId) == 0 {
-		if len(errs) > 0 {
-			return "", errors.New(ErrorWMICExecutionFailure)
-		}
-		return "", errors.New(ErrorHardwareIdEmpty)
-	}
-
-	return hardwareId, nil
 }
