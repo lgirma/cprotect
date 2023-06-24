@@ -38,6 +38,13 @@ func Encrypt(text, password_input string) (string, error) {
 		return "", err
 	}
 	plainText := []byte(text)
+	if len(iv) < block.BlockSize() {
+		for i := 0; i < block.BlockSize()-len(iv); i++ {
+			iv = append(iv, 0)
+		}
+	} else if len(iv) > block.BlockSize() {
+		iv = iv[:block.BlockSize()]
+	}
 	cfb := cipher.NewCFBEncrypter(block, iv)
 	cipherText := make([]byte, len(plainText))
 	cfb.XORKeyStream(cipherText, plainText)
@@ -60,6 +67,13 @@ func Decrypt(text, password_input string) (string, error) {
 		return "", err
 	}
 	cipherText := decode(text)
+	if len(iv) < block.BlockSize() {
+		for i := 0; i < block.BlockSize()-len(iv); i++ {
+			iv = append(iv, 0)
+		}
+	} else if len(iv) > block.BlockSize() {
+		iv = iv[:block.BlockSize()]
+	}
 	cfb := cipher.NewCFBDecrypter(block, iv)
 	plainText := make([]byte, len(cipherText))
 	cfb.XORKeyStream(plainText, cipherText)
